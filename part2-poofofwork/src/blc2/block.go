@@ -38,7 +38,7 @@ func NewBlock(data string, preBlockHash []byte) *Block {
 
 	// 校验区块有效性
 	isValid := pow.Validate()
-	fmt.Println(isValid)
+	fmt.Println("\n ", isValid)
 	fmt.Println("\n")
 	//返回区块
 	return block
