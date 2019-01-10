@@ -97,3 +97,84 @@ func (block *Block) SetHash(){
 ```go
 {1547123223 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] [116 104 105 115 32 105 115 32 98 108 111 99 107] [9 213 183 30 160 73 175 91 225 220 225 250 175 210 234 199 250 120 203 99 134 201 111 227 51 252 145 158 141 220 63 145]}
 ```
+
+我们看到打印的哈希属性已经有值了，但是都是数字。这是因为我们输出的是二进制编码，我们想要输出正确的哈希值应该这样打印
+
+```go
+fmt.Printf("block hash: %x",block.Hash)
+//block hash: 2102a25333c4b671557f83eacfb3e2b215c23c905e04efbac8cf81b6e49c7f8c
+```
+
+到这里我们已经生成了一个区块，但是好像还有一点不方便的地方。哪里呢？
+
+我们每次生成区块的时候都需要手动传入两个参数，一个是交易数据，另一个就是上一个区块的哈希，那我们就给区块一个方法我们直接调用就好了。
+
+```go
+// 初始化区块
+func NewInitialBlock()*Block{
+    return NewBlock("this is first block",[]byte{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0})
+}
+```
+
+这样的话我们就可以直接调用了。
+
+#### BlockChain
+
+有了区块，我们怎么生成区块链呢？区块链就是一个区块的数组，我们先来看下`BlockChain`的数据结构
+
+```go
+type BlockChain struct{
+    Block []*Block
+}
+```
+
+创建我们的第一个区块链
+
+```go
+package blc
+
+//区块链结构体
+type BlockChain struct{
+    Block *[]Block
+}
+
+//生成区块链
+func NewBlockChain()*BlockChain{
+    return &BlockChain{[]*Block{NewInitialBlock()}}
+}
+```
+
+打印一下我们的第一个BlockChain
+
+```go
+package main
+
+func main(){
+    blockChain:=NewBlockChain()
+    for _,block:=range blockChain{
+        fmt.Printf("Data: %s \n", string(block.Data))
+		fmt.Printf("PreBlockHash: %x \n", string(block.PrevBlockHash))
+		fmt.Printf("TimeStamp: %s \n", time.Unix(block.Timestamp, 0).Format("2006-01-02 03:04:05 PM"))
+		fmt.Printf("Hash: %x \n", block.Hash)
+    }
+}
+//Data: Genenis Block 
+//PreBlockHash: 00000000000000000000000000000000 
+//TimeStamp: 2019-01-10 08:52:58 PM 
+//Hash: f1df7a893026d2e5ab1afb46ec3597627878b032fa7b019a61061648f0661edc 
+```
+
+可以看到我们的第一个区块链的雏形已经出来了，但是仅有一个不够啊。我们还需要像该链加入区块
+
+```go
+func (blockChain *BlockChain)AddBlock(data string){
+    preBlock:=blockChain.Block[len(blockChain)-1]
+    newBlock:=NewBlock(data,preBlock.Hash)
+    blockChain.Block=append(blockChain.Block,newBlock)
+}
+```
+
+- 首先我们给BlockChain结构体绑定AddBlock方法，并且将交易数据作为参数传递
+- 拿到上一个区块信息
+- 创建新区块，并且将上一个区块的哈希传入
+- 将新创建的区块加入当前链中
