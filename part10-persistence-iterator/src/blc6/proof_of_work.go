@@ -1,7 +1,7 @@
 // auth: kunlun
 // date: 2019-01-09
 // description:  POW 工作量证明
-package blc5
+package blc6
 
 import (
 	"bytes"
@@ -15,7 +15,7 @@ import (
 //000000001
 //如果将第三位为1 那么需要左移  8-3=5  00100000
 //<< 5
-const targetBits = 13 //挖矿难度
+const targetBits = 16 //挖矿难度
 
 //最大值
 var maxNonce = math.MaxInt64
